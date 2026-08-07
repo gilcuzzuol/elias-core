@@ -7,12 +7,23 @@ import type { EmbeddingProvider } from "./provider.js";
 
 const DEFAULT_MODEL = "Xenova/multilingual-e5-large";
 const E5_DIMENSIONS = 1024;
+const DEFAULT_DTYPE: EmbeddingDType = "q8";
+
+/**
+ * Precisão dos pesos ONNX carregados. "q8" (quantizado int8) é o padrão:
+ * download muito menor (~500MB vs ~2,2GB do fp32) e inferência rápida na CPU,
+ * com perda de qualidade desprezível para retrieval. "fp16"/"fp32" ficam
+ * disponíveis para quem quiser máxima precisão.
+ */
+export type EmbeddingDType = "fp32" | "fp16" | "q8";
 
 export interface LocalEmbeddingOptions {
   /** ID do modelo (Hugging Face). Padrão: multilingual-e5-large. */
   model?: string;
   /** Dimensão esperada do vetor. Padrão: 1024. */
   dimensions?: number;
+  /** Precisão dos pesos. Padrão: "q8" (quantizado, leve e rápido). */
+  dtype?: EmbeddingDType;
 }
 
 /**
@@ -27,17 +38,21 @@ export class LocalEmbeddingProvider implements EmbeddingProvider {
   readonly name = "local-e5-large";
   readonly dimensions: number;
   private readonly model: string;
+  private readonly dtype: EmbeddingDType;
   private extractor: FeatureExtractionPipeline | null = null;
 
   constructor(options: LocalEmbeddingOptions = {}) {
     this.model = options.model ?? DEFAULT_MODEL;
     this.dimensions = options.dimensions ?? E5_DIMENSIONS;
+    this.dtype = options.dtype ?? DEFAULT_DTYPE;
   }
 
   /** Carrega o modelo sob demanda (o primeiro uso baixa os pesos uma vez). */
   private async getExtractor(): Promise<FeatureExtractionPipeline> {
     if (this.extractor === null) {
-      this.extractor = await pipeline("feature-extraction", this.model);
+      this.extractor = await pipeline("feature-extraction", this.model, {
+        dtype: this.dtype,
+      });
     }
     return this.extractor;
   }

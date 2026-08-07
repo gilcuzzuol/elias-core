@@ -1,0 +1,21 @@
+{
+  "name": "@elias/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "memory:e2e": "node --env-file=../../.env dist/memory-e2e.js"
+  },
+  "dependencies": {
+    "@elias/embeddings": "workspace:*",
+    "@elias/memory": "workspace:*",
+    "@elias/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}

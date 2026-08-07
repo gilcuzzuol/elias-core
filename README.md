@@ -19,6 +19,7 @@ packages/
   core/           # orquestração mínima (ChatSession + fábrica de provedor)
   llm/            # LLMProvider plugável + adapter Claude (ADR-0006)
   embeddings/     # EmbeddingProvider plugável + adapter local (ADR-0009)
+  memory/         # memória semântica: ingestão + retrieval (pgvector)
   shared/         # tipos, erros e utils comuns
 infra/
   supabase/       # migrations do schema (RLS, pgvector) — ADR-0003

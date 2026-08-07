@@ -28,6 +28,7 @@ arquivo `NNNN_descricao.sql` é aplicado em ordem. O schema atual cobre:
 | 0006 | immutable_audit_log | `audit_log` append-only |
 | 0007 | harden_functions | fix de `search_path` e revoke de execução |
 | 0008 | embedding_dim_1024 | dimensão do embedding 1536 → 1024 ([ADR-0009](../../docs/adr/0009-local-embeddings-provider.md)) |
+| 0009 | match_memory_chunks_user_scoped | busca semântica com `filter_user_id` explícito (segura para `service_role`) |
 
 ## Princípios refletidos no schema
 
