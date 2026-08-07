@@ -22,3 +22,4 @@ Este diretório contém o registro histórico das decisões arquiteturais do ELI
 | [0006](0006-pluggable-llm-provider-abstraction.md) | Abstração plugável de provedores de LLM | Aceita |
 | [0007](0007-android-client-pwa-first.md) | Cliente Android: PWA primeiro | Aceita |
 | [0008](0008-pnpm-workspaces-monorepo.md) | pnpm workspaces como gestor do monorepo | Aceita |
+| [0009](0009-local-embeddings-provider.md) | Embeddings locais como padrão da memória semântica | Aceita |
