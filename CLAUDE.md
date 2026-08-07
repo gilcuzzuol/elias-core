@@ -28,10 +28,12 @@ sobre conveniência de curto prazo.
 ```
 apps/
   cli/            # CLI de chat no macOS (Fase 0), com memória plugada (ADR-0010)
+  api/            # servidor HTTP local (Fastify) para o app de desktop (ADR-0012)
+  web/            # PWA de chat (instalável, ícone na dock) — consome apps/api (ADR-0012)
   scripts/        # scripts operacionais (ensure-user, e2e de memória)
 packages/
   core/           # orquestração mínima (ChatSession + fábricas de provedor/memória)
-  llm/            # LLMProvider plugável + adapter Claude (ADR-0006)
+  llm/            # LLMProvider plugável + adapters Claude (ADR-0006) e Ollama (ADR-0011)
   embeddings/     # EmbeddingProvider plugável + adapter local (ADR-0009)
   memory/         # memória episódica (conversations/messages) + semântica (pgvector)
   shared/         # tipos, erros, utils comuns
@@ -39,7 +41,7 @@ infra/supabase/   # migrations do schema (RLS, pgvector) — fonte da verdade
 docs/             # arquitetura, ADRs, princípios
 ```
 
-Decisões já registradas: ADR-0001 a 0010. Antes de mudar arquitetura, leia as
+Decisões já registradas: ADR-0001 a 0012. Antes de mudar arquitetura, leia as
 ADRs relevantes.
 
 ## Comandos
@@ -51,6 +53,7 @@ pnpm build             # builda todos os pacotes (tsc -b, project references)
 pnpm typecheck         # checagem de tipos
 pnpm ensure-user       # provisiona/localiza ELIAS_USER_ID (dado pessoal — LGPD, ver abaixo)
 pnpm cli               # inicia o CLI de chat (precisa de ANTHROPIC_API_KEY + ELIAS_USER_ID)
+pnpm app               # builda o PWA e inicia o app de desktop (apps/api + apps/web, ADR-0012)
 pnpm e2e:memory        # teste ponta a ponta da memória (precisa do Supabase)
 ```
 
@@ -59,6 +62,9 @@ Gerenciador de pacotes: **pnpm** (ADR-0008), via Corepack.
 ## Ambiente e segredos
 
 - Copie `.env.example` para `.env` e preencha. **Nunca** comite `.env` (Princípio 3).
+- `ELIAS_LLM_PROVIDER` escolhe o adapter: `claude` (pago, precisa de
+  `ANTHROPIC_API_KEY`) ou `ollama` (gratuito, local — ADR-0011, precisa do
+  Ollama rodando; ver seção Ollama abaixo).
 - `ANTHROPIC_API_KEY` — para o CLI/adapter Claude.
 - `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
   - A `service_role` (JWT `eyJ...`, seção "Legacy API keys" no painel) **ignora RLS**;
@@ -92,6 +98,28 @@ Gerenciador de pacotes: **pnpm** (ADR-0008), via Corepack.
   interrompido) — limpe e rebaixe:
   `find node_modules -path '*@huggingface/transformers/.cache' -type d -exec rm -rf {} +`
 - Diagnóstico com progresso: `node packages/embeddings/diag.mjs`.
+
+## Ollama (ADR-0011)
+
+- Opção gratuita de LLM (`ELIAS_LLM_PROVIDER=ollama`), local, sem custo por
+  token. Qualidade de raciocínio abaixo do Claude — trade-off aceito pelo
+  usuário ao escolher esse modo.
+- Fala com a API HTTP local do Ollama (`ELIAS_OLLAMA_URL`, padrão
+  `http://localhost:11434`); modelo configurável em `ELIAS_OLLAMA_MODEL`.
+- Pré-requisito fora do repo: Ollama instalado, rodando (`ollama serve`) e
+  com o modelo baixado (`ollama pull <modelo>`) — ver guia de instalação que
+  o Chief AI Architect deve fornecer quando isso for pedido.
+
+## App de desktop (ADR-0012)
+
+- `pnpm app` builda `apps/web` (PWA) e sobe `apps/api` (Fastify), que serve o
+  PWA e a API no mesmo processo/porta — `http://localhost:4787` por padrão
+  (`ELIAS_API_PORT`). Bind sempre em `127.0.0.1`, nunca exposto na rede.
+- Mesma `ChatSession`/LLM/memória do CLI — uma sessão por processo; reiniciar
+  o servidor começa uma conversa nova (a memória episódica no Supabase
+  continua sendo persistida por trás).
+- O PWA é instalável (ícone na dock) via Chrome/Safari — ver
+  `docs/adr/0012-local-desktop-api-and-pwa.md` para o desenho completo.
 
 ## Notas de ambiente
 

@@ -3,3 +3,4 @@
  */
 export * from "./provider.js";
 export * from "./claude.js";
+export * from "./ollama.js";

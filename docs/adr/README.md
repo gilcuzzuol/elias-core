@@ -24,3 +24,5 @@ Este diretório contém o registro histórico das decisões arquiteturais do ELI
 | [0008](0008-pnpm-workspaces-monorepo.md) | pnpm workspaces como gestor do monorepo | Aceita |
 | [0009](0009-local-embeddings-provider.md) | Embeddings locais como padrão da memória semântica | Aceita |
 | [0010](0010-memory-context-injection.md) | Injeção de contexto de memória semântica nas chamadas ao LLM | Aceita |
+| [0011](0011-ollama-local-llm-provider.md) | Provedor de LLM local gratuito via Ollama | Aceita |
+| [0012](0012-local-desktop-api-and-pwa.md) | Servidor HTTP local + PWA instalável como interface de desktop | Aceita |
