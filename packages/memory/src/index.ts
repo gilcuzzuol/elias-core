@@ -5,4 +5,5 @@
 export * from "./client.js";
 export * from "./chunker.js";
 export * from "./memory-store.js";
+export * from "./conversation-store.js";
 export type { Database, Json } from "./database.types.js";

@@ -12,6 +12,7 @@
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean",
     "cli": "pnpm --filter @elias/cli start",
-    "e2e:memory": "pnpm --filter @elias/scripts build && pnpm --filter @elias/scripts memory:e2e"
+    "e2e:memory": "pnpm --filter @elias/scripts build && pnpm --filter @elias/scripts memory:e2e",
+    "ensure-user": "pnpm --filter @elias/scripts build && pnpm --filter @elias/scripts ensure-user"
   }
 }

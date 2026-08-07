@@ -1,37 +1,64 @@
 import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
-import { ChatSession, createLLMProvider } from "@elias/core";
-import { EliasError } from "@elias/shared";
+import {
+  ChatSession,
+  createLLMProvider,
+  createMemoryLayer,
+  createMemoryRetrievalConfig,
+} from "@elias/core";
+import { EliasError, requireEnv } from "@elias/shared";
 
 /**
- * CLI de chat do ELIAS (Fase 0 — macOS).
+ * CLI de chat do ELIAS (Fase 0 — macOS; memória plugada na Fase 1).
  *
- * REPL simples: lê linhas do usuário e responde via ChatSession. Ponto de
- * entrada humano mais leve possível para exercitar core + llm de ponta a ponta.
- * Interfaces mais ricas (PWA Android, etc.) entram nas fases seguintes.
+ * REPL simples: lê linhas do usuário e responde via ChatSession, com memória
+ * semântica (retrieval) e episódica (conversations/messages) plugadas
+ * (ADR-0010). Interfaces mais ricas (PWA Android, etc.) entram nas fases
+ * seguintes.
  */
 async function main(): Promise<void> {
   let provider;
+  let userId;
+  let memoryStore;
+  let conversationStore;
+  let memory;
   try {
     provider = createLLMProvider();
+    // ADR-0005: mesmo com um único usuário ativo, é um usuário real do
+    // Supabase Auth — não um placeholder. Ver apps/scripts/ensure-user.
+    userId = requireEnv("ELIAS_USER_ID");
+    ({ memoryStore, conversationStore } = createMemoryLayer());
+    memory = createMemoryRetrievalConfig();
   } catch (error) {
     if (error instanceof EliasError) {
       console.error(`\n[configuração] ${error.message}\n`);
-      console.error("Dica: copie .env.example para .env e preencha ANTHROPIC_API_KEY.\n");
+      console.error(
+        "Dica: copie .env.example para .env, preencha ANTHROPIC_API_KEY/SUPABASE_* e rode " +
+          "`pnpm --filter @elias/scripts ensure-user` para obter ELIAS_USER_ID.\n",
+      );
       process.exit(1);
     }
     throw error;
   }
 
-  // Fase 0: usuário único local. Multiusuário real (ADR-0005) entra na Fase 4.
-  const session = new ChatSession({ provider, userId: "local" });
+  const session = new ChatSession({
+    provider,
+    userId,
+    memoryStore,
+    conversationStore,
+    memory,
+  });
 
   const rl = createInterface({ input: stdin, output: stdout });
   rl.on("SIGINT", () => {
     rl.close();
   });
 
-  console.log("ELIAS (Fase 0) — chat local via Claude.");
+  console.log("ELIAS (Fase 0) — chat local via Claude, com memória (Fase 1).");
+  console.log(
+    "A primeira mensagem pode demorar mais: carrega o modelo local de embeddings " +
+      "(baixa ~500MB na primeira vez).",
+  );
   console.log('Digite sua mensagem. Use "/sair" ou Ctrl+C para encerrar.\n');
 
   try {

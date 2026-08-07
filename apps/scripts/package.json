@@ -7,7 +7,8 @@
     "build": "tsc -b",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist *.tsbuildinfo",
-    "memory:e2e": "node --env-file=../../.env dist/memory-e2e.js"
+    "memory:e2e": "node --env-file=../../.env dist/memory-e2e.js",
+    "ensure-user": "node --env-file=../../.env dist/ensure-user.js"
   },
   "dependencies": {
     "@elias/embeddings": "workspace:*",

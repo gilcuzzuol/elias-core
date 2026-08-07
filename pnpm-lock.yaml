@@ -45,9 +45,15 @@ importers:
 
   packages/core:
     dependencies:
+      '@elias/embeddings':
+        specifier: workspace:*
+        version: link:../embeddings
       '@elias/llm':
         specifier: workspace:*
         version: link:../llm
+      '@elias/memory':
+        specifier: workspace:*
+        version: link:../memory
       '@elias/shared':
         specifier: workspace:*
         version: link:../shared

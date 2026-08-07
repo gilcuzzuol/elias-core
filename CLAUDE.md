@@ -27,30 +27,31 @@ sobre conveniência de curto prazo.
 
 ```
 apps/
-  cli/            # CLI de chat no macOS (Fase 0)
-  scripts/        # scripts operacionais (ex.: e2e de memória)
+  cli/            # CLI de chat no macOS (Fase 0), com memória plugada (ADR-0010)
+  scripts/        # scripts operacionais (ensure-user, e2e de memória)
 packages/
-  core/           # orquestração mínima (ChatSession + fábrica de provedor)
+  core/           # orquestração mínima (ChatSession + fábricas de provedor/memória)
   llm/            # LLMProvider plugável + adapter Claude (ADR-0006)
   embeddings/     # EmbeddingProvider plugável + adapter local (ADR-0009)
-  memory/         # memória semântica: ingestão + retrieval (pgvector)
+  memory/         # memória episódica (conversations/messages) + semântica (pgvector)
   shared/         # tipos, erros, utils comuns
 infra/supabase/   # migrations do schema (RLS, pgvector) — fonte da verdade
 docs/             # arquitetura, ADRs, princípios
 ```
 
-Decisões já registradas: ADR-0001 a 0009. Antes de mudar arquitetura, leia as
+Decisões já registradas: ADR-0001 a 0010. Antes de mudar arquitetura, leia as
 ADRs relevantes.
 
 ## Comandos
 
 ```bash
-corepack enable            # habilita o pnpm (vem com o Node)
-pnpm install               # instala dependências
-pnpm build                 # builda todos os pacotes (tsc -b, project references)
-pnpm typecheck             # checagem de tipos
-pnpm cli                   # inicia o CLI de chat (precisa de ANTHROPIC_API_KEY)
-pnpm e2e:memory            # teste ponta a ponta da memória (precisa do Supabase)
+corepack enable        # habilita o pnpm (vem com o Node)
+pnpm install           # instala dependências
+pnpm build             # builda todos os pacotes (tsc -b, project references)
+pnpm typecheck         # checagem de tipos
+pnpm ensure-user       # provisiona/localiza ELIAS_USER_ID (dado pessoal — LGPD, ver abaixo)
+pnpm cli               # inicia o CLI de chat (precisa de ANTHROPIC_API_KEY + ELIAS_USER_ID)
+pnpm e2e:memory        # teste ponta a ponta da memória (precisa do Supabase)
 ```
 
 Gerenciador de pacotes: **pnpm** (ADR-0008), via Corepack.
@@ -64,6 +65,10 @@ Gerenciador de pacotes: **pnpm** (ADR-0008), via Corepack.
     só no core/worker, jamais no cliente. As chaves novas `sb_secret_...` funcionam
     na Data API mas **não** no Auth admin — use a `service_role` legada para scripts
     que criam usuários.
+- `ELIAS_USER_ID` — uuid do usuário real no Supabase Auth usado pelo CLI (ADR-0005:
+  mesmo com um único usuário ativo, é um usuário real, não um placeholder). Obtenha
+  com `pnpm ensure-user` (dado pessoal real — confirme com o dono do e-mail antes
+  de rodar, ver política de LGPD abaixo).
 
 ## Supabase
 
@@ -103,8 +108,25 @@ Gerenciador de pacotes: **pnpm** (ADR-0008), via Corepack.
 - Um módulo, uma responsabilidade (Princípio 10). Comentários e mensagens em
   português do Brasil, como o restante do projeto.
 
+## Política de dados pessoais (LGPD) — pare e pergunte
+
+As regras de permissão em `.claude/settings.json` cobrem o que é detectável por
+padrão (segredos, banco, push, remoção, rede). O que elas NÃO detectam é o
+*significado* do dado — isso é responsabilidade sua. Antes de qualquer ação que
+envolva **dados pessoais reais** (de Gil, da família ou de terceiros), **pause e
+peça confirmação explícita ao humano**, mesmo que a ação em si seja tecnicamente
+permitida. Em especial:
+
+- Inserir, mover, exportar ou apagar dados pessoais reais em qualquer tabela.
+- Enviar conteúdo pessoal/sensível para um LLM externo ou qualquer serviço de rede.
+- Rodar migrations ou comandos que toquem dados de produção.
+- Manipular segredos/credenciais (`.env`, chaves, tokens).
+
+Na dúvida sobre se um dado é pessoal/sensível, trate como se fosse e pergunte.
+Dados de teste sintéticos (como no e2e) não exigem essa confirmação.
+
 ## Roadmap (resumo)
 
 Fase 0 (Fundação) ✅ · Fase 1 (Memória MVP) em andamento — pipeline de ingestão/
-retrieval validado e2e; próximo: plugar memória no CLI. Fases seguintes em
-`docs/architecture/overview.md#8-roadmap`.
+retrieval validado e2e; memória plugada no CLI (episódica + injeção de contexto,
+ADR-0010). Fases seguintes em `docs/architecture/overview.md#8-roadmap`.

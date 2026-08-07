@@ -17,7 +17,9 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@elias/embeddings": "workspace:*",
     "@elias/llm": "workspace:*",
+    "@elias/memory": "workspace:*",
     "@elias/shared": "workspace:*"
   },
   "devDependencies": {

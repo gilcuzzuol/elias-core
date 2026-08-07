@@ -3,3 +3,4 @@
  */
 export * from "./chat-session.js";
 export * from "./provider-factory.js";
+export * from "./memory-factory.js";
