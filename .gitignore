@@ -1,0 +1,23 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+*.tsbuildinfo
+
+# Segredos — nunca versionar (Princípio 3)
+.env
+.env.*
+!.env.example
+
+# Sistema
+.DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/

@@ -1,0 +1,16 @@
+{
+  "name": "elias-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ELIAS — sistema de IA pessoal e familiar. Monorepo.",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean",
+    "cli": "pnpm --filter @elias/cli start"
+  }
+}
